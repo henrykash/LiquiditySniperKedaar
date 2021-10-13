@@ -67,6 +67,7 @@ const main = async () => {
 
 		let tokensToMonitor = TOKENS_TO_MONITOR.map((token: string) => token.toLowerCase());
 
+		console.log(tokensToMonitor)
 
 		const mempoolData = async (notification: string) => {
 
@@ -82,18 +83,16 @@ const main = async () => {
 						data: tx.txContents.input
 					});
 
-					console.log("Tx ", tx.txHash)
-					console.log("TO ", tx.txContents.to)
-					console.log("input ", tx.txContents.input);
-					console.log("Router : ", routerAddress)
+					console.log("\n\nTransaction data ")
+					console.log(tx)
 
 					let gasLimit = parseInt(tx.txContents.gas, 16);
 					let gasPrice = parseInt(tx.txContents.gasPrice, 16);
 					let methodName = decodedInput.name
 					let currentNonce: any = await walletNonce();
 
-					console.log(currentNonce)
-
+					console.log("\nNonce", currentNonce)
+					console.log("\n")
 					if (methodName == "addLiquidity") {
 						let token;
 						let tokenA = decodedInput.args.tokenA
@@ -117,8 +116,6 @@ const main = async () => {
 
 							count++
 
-							let tokenAmount: any = await calculateTokensAmount(token, BNB_AMOUNT_TO_BUY?.toString())
-
 							// buy
 
 							let buyTx: any;
@@ -126,7 +123,7 @@ const main = async () => {
 							// Broadcast transactions using spraygun feature
 							for (let index = 0; index < 2; index++) {
 								console.log("No of buys, nonce", index + 1, currentNonce + index)
-								buyTx = await swapExactETHForTokens(tokenAmount, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, currentNonce + index);
+								buyTx = await swapExactETHForTokens(0, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, currentNonce + index);
 							}
 
 							if (buyTx?.success == true) {
@@ -182,16 +179,12 @@ const main = async () => {
 
 							console.log("it is inside out tokens to monitor", token.toLowerCase())
 
-
-
-							let tokenAmount: any = await calculateTokensAmount(token, BNB_AMOUNT_TO_BUY.toString());
-
 							let buyTx: any;
 
 							// Broadcast transactions using spraygun feature
 							for (let index = 0; index < NO_OF_BUYS; index++) {
 								console.log("No of buys, nonce", index + 1, currentNonce + index)
-								buyTx = await swapExactETHForTokens(tokenAmount, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, currentNonce + index);
+								buyTx = await swapExactETHForTokens(0, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, currentNonce + index);
 							}
 
 							if (buyTx?.success == true) {
@@ -212,7 +205,7 @@ const main = async () => {
 										break;
 									} else if (tx && tx.status != 0) {
 										const nonce = await walletNonce()
-										await swapExactETHForTokens(tokenAmount, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, nonce!);
+										await swapExactETHForTokens(0, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, nonce!);
 									} else if ((Date.now() - startTime) > 30000) {
 										console.log("Timeout ... Quiting querrying transaction and approve ")
 										const nonce = await walletNonce()
@@ -286,15 +279,13 @@ const main = async () => {
 
 								count++
 
-								let tokenAmount: any = await calculateTokensAmount(token, BNB_AMOUNT_TO_BUY?.toString())
-
 								// buy
 								let buyTx: any;
 
 								// Broadcast transactions using spraygun feature
 								for (let index = 0; index < 2; index++) {
 									console.log("No of buys, nonce", index + 1, currentNonce + index)
-									buyTx = await swapExactETHForTokens(tokenAmount, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, currentNonce + index);
+									buyTx = await swapExactETHForTokens(0, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, currentNonce + index);
 								}
 								//check if the buyTxHash is true for a successful buy
 								if (buyTx?.success == true) {
@@ -354,8 +345,6 @@ const main = async () => {
 						if (tokensToMonitor.includes(token.toLowerCase())) {
 							//if (!boughtTokens.includes(token.toLowerCase())) {
 
-							let tokenAmount: any = await calculateTokensAmount(token, BNB_AMOUNT_TO_BUY.toString());
-
 							let buyTx: any;
 
 							// Broadcast transactions using spraygun feature
@@ -363,7 +352,7 @@ const main = async () => {
 
 								console.log("No of buys, nonce", index + 1, currentNonce + index)
 								//BUY function
-								buyTx = await swapExactETHForTokens(tokenAmount, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, currentNonce + index);
+								buyTx = await swapExactETHForTokens(0, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, currentNonce + index);
 							}
 
 							if (buyTx?.success == true) {
@@ -388,7 +377,7 @@ const main = async () => {
 									} else if (tx && tx.status != 0) {
 										const nonce = await walletNonce()
 
-										await swapExactETHForTokens(tokenAmount, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, nonce!);
+										await swapExactETHForTokens(0, BNB_AMOUNT_TO_BUY, path, gasPrice, gasLimit, nonce!);
 
 									} else if ((Date.now() - startTime) > 30000) {
 
@@ -429,9 +418,9 @@ const main = async () => {
 		}
 
 		const processMempooldata = (nextNotification: string) => {
-			if (count < 1) {
-				mempoolData(nextNotification);
-			}
+			// if (count < 1) {
+			mempoolData(nextNotification);
+			// }
 		}
 
 		ws.on("open", subscribe);
