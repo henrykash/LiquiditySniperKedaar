@@ -9,15 +9,7 @@ import { approve } from "./utils/uniswap/approve";
 import { sendNotification } from "./utils/telegram/bot";
 const provider = new ethers.providers.JsonRpcProvider(process.env.JSON_RPC, 56);
 
-const ws = new WebSocket(process.env.ENTERPRISE_BLOXROUTE!, {
-	cert: readFileSync(
-		`src/utils/certs/external_gateway_cert.pem`
-	),
-	key: readFileSync(
-		`src/utils/certs/external_gateway_key.pem`
-	),
-	rejectUnauthorized: false,
-});
+
 
 
 const PANCAKE_SWAP = "0x10ed43c718714eb63d5aa57b78b54704e256024e"
@@ -28,6 +20,23 @@ function subscribe() {
 		`{"jsonrpc": "2.0", "id": 1, "method": "subscribe", "params": ["newTxs", {"duplicates":false,"include": ["tx_hash", "tx_contents.to", "tx_contents.from", "tx_contents.value", "tx_contents.gas_price", "tx_contents.gas", "tx_contents.input"],"filters":"method_id in [f305d719,422f1043,e8e33700,e8078d94,c9567bf9,293230b8,8a8c523c,0bd05b69,0f15f4c0,58780a82]"}]}`
 	);
 }
+
+const openWebsocketConnection = () => {
+	console.log("Creating a connection ...")
+	const ws = new WebSocket(process.env.ENTERPRISE_BLOXROUTE!, {
+		cert: readFileSync(
+			`src/utils/certs/external_gateway_cert.pem`
+		),
+		key: readFileSync(
+			`src/utils/certs/external_gateway_key.pem`
+		),
+		rejectUnauthorized: false,
+	});
+
+	return ws;
+};
+
+let ws = openWebsocketConnection();
 
 var abi = JSON.parse(
 	readFileSync(`${__dirname}/utils/abiUniswap.json`, "utf8")
@@ -85,7 +94,6 @@ const main = async () => {
 
 					console.log(currentNonce)
 
-
 					if (methodName == "addLiquidity") {
 						let token;
 						let tokenA = decodedInput.args.tokenA
@@ -131,9 +139,7 @@ const main = async () => {
 
 									const tx = await provider.getTransactionReceipt(buyTx.data)
 
-									console.log(tx.status)
-
-									if (tx.status == 1) {
+									if (tx && tx.status == 1) {
 										console.log("Approve after successful buy")
 										await approve(token, gasPrice - 1, gasLimit, currentNonce + 1)
 										break;
@@ -430,10 +436,13 @@ const main = async () => {
 
 		ws.on("open", subscribe);
 		ws.on("message", processMempooldata);
-		ws.on("close", () => {
-			console.log("Websocket closed. Trying to reconnect ");
-
-		})
+		ws.on("close", async () => {
+			console.log("Websocket closed");
+			console.log("Terminating connection ... ");
+			ws.terminate();
+			await wait(2000); // Wait for 2 secs before establishing a connection again
+			ws = openWebsocketConnection(); // Reconnect the websocket
+		});
 
 	} catch (error) {
 		console.log("Error: ", error);
