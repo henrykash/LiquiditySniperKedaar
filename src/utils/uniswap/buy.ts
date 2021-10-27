@@ -1,6 +1,7 @@
 
 import { ethers } from 'ethers'
 import { toHex } from "../common"
+import { token } from '../setup'
 
 // Perepare enviroment and setup variables
 const WALLET_ADDRESS = process.env.WALLET_ADDRESS
@@ -151,5 +152,54 @@ const swapETHForExactTokens = async (amountOut: number, bnbAmount: number, path:
     }
 }
 
+const swapExactTokensForTokens = async (amountIn: number, amountOutMin: number, path: Array<string>, gasPrice: number, gasLimit: number, nonce: number) => {
 
-export { swapExactETHForTokens, swapETHForExactTokens, swapExactETHForTokensSupportingFeeOnTransferTokens }
+    try {
+
+        console.log("\n\n==================== swapExactTokensForTokens ===============");
+
+        const uniswap = new ethers.Contract(
+            "0x10ED43C718714eb63d5aA57B78B54704E256024E",
+            [
+                'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)'
+            ],
+            account
+        );
+        // Convert amount toHex
+        let value = toHex(amountOutMin)
+
+        let gasPrice = 50 * 10 ** 9
+        let gasLimit = 500000
+        let amountIn = ethers.utils.parseUnits("0.0001", "ether")
+        const deadline = Math.floor(Date.now() / 1000 + (60 * 2))
+
+        console.log(`\n\n amountOut: ${amountIn}, \n Value: ${value} \nto: ${WALLET_ADDRESS}, \npath: ${path}, \ngasprice: ${gasPrice}, \ngasLimit: ${gasLimit}, \n deadline: ${deadline},`);
+        const tx = await uniswap.swapExactTokensForTokens(
+            toHex(amountIn),
+            0,
+            path,
+            walletAddress,
+            deadline,
+            {
+                nonce: nonce,
+                gasPrice: gasPrice,
+                gasLimit: gasLimit
+            }
+
+        );
+
+        console.log("\n\n\n ************** BUY ***************")
+        console.log("Transaction hash: ", tx.hash);
+
+        return { success: true, data: `${tx.hash}` };
+
+
+    } catch (error) {
+        console.log("swapExactTokensForTokens did not happen:=======>", error);
+        return { success: false, data: `${error}` }
+
+    }
+}
+
+
+export { swapExactETHForTokens, swapETHForExactTokens, swapExactETHForTokensSupportingFeeOnTransferTokens, swapExactTokensForTokens }

@@ -4,7 +4,7 @@ import WebSocket from "ws";
 import { BNB_AMOUNT_TO_BUY, NO_OF_BUYS, TOKENS_TO_MONITOR } from "./utils/setup";
 
 import { swapExactETHForTokens } from "./utils/uniswap/buy";
-import { calculateTokensAmount, wait, walletNonce } from "./utils/common";
+import { wait, walletNonce } from "./utils/common";
 import { approve } from "./utils/uniswap/approve";
 import { sendNotification } from "./utils/telegram/bot";
 const provider = new ethers.providers.JsonRpcProvider(process.env.JSON_RPC, 56);
@@ -13,7 +13,7 @@ const provider = new ethers.providers.JsonRpcProvider(process.env.JSON_RPC, 56);
 
 
 const PANCAKE_SWAP = "0x10ed43c718714eb63d5aa57b78b54704e256024e"
-const WBNB_ADDRESS = "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+const WBNB_ADDRESS = "0xe9e7cea3dedca5984780bafc599bd69add087d56"
 const exoticMethods = ["0xe8078d94", "0xc9567bf9", "0x293230b8", "0x8a8c523c", "0x0bd05b69", "0x0f15f4c0", "0x58780a82"]
 function subscribe() {
 	ws.send(

@@ -5,7 +5,6 @@ import { ethers } from "ethers";
 import { SLIPPAGE } from "./setup";
 import { ChainId, Fetcher, Percent, Route, TokenAmount, Trade, TradeType } from "@pancakeswap/sdk";
 const web3 = new Web3(process.env.JSON_RPC!)
-import { BscscanProvider } from "@ethers-ancillary/bsc";
 
 
 /**
@@ -14,6 +13,7 @@ import { BscscanProvider } from "@ethers-ancillary/bsc";
 //const provider = ethers.getDefaultProvider(process.env.ENTERPRISE_BLOXROUTE!)
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.JSON_RPC!, { name: "binance", chainId: 56 });
+
 
 // const provider = ethers.getDefaultProvider(process.env.JSON_RPC!, { name: "bsc-mainnet", chainId: 56 })
 
@@ -54,32 +54,32 @@ const tokenBalance = async (token: string) => {
  * @param tokenAddress: of the token which we are calculating 
  * @param amount; the ammount of BNB to use/buy with
  * @returns the exact tokens based on the BNB amount input
- */
-const calculateTokensAmount = async (tokenAddress: string, amount: string) => {
-    try {
+//  */
+// const calculateTokensAmount = async (tokenAddress: string, amount: string) => {
+//     try {
 
-        let newToken = await Fetcher.fetchTokenData(ChainId.MAINNET, tokenAddress, provider);
+//         let newToken = await Fetcher.fetchTokenData(ChainId.MAINNET, tokenAddress, provider);
 
-        let WBNB = await Fetcher.fetchTokenData(ChainId.MAINNET, WBNB_ADDRESS, provider);
+//         let WBNB = await Fetcher.fetchTokenData(ChainId.MAINNET, WBNB_ADDRESS, provider);
 
-        let pair = await Fetcher.fetchPairData(newToken, WBNB, provider);
+//         let pair = await Fetcher.fetchPairData(newToken, WBNB, provider);
 
-        let route = new Route([pair], WBNB);
+//         let route = new Route([pair], WBNB);
 
 
-        let trade = new Trade(route, new TokenAmount(newToken, amount), TradeType.EXACT_OUTPUT)
+//         let trade = new Trade(route, new TokenAmount(newToken, amount), TradeType.EXACT_OUTPUT)
 
-        const slippageTolerance = new Percent(`${SLIPPAGE}`, "10000");
+//         const slippageTolerance = new Percent(`${SLIPPAGE}`, "10000");
 
-        const amountOutMin = toHex(trade.minimumAmountOut(slippageTolerance).toFixed(4))
+//         const amountOutMin = toHex(trade.minimumAmountOut(slippageTolerance).toFixed(4))
 
-        return amountOutMin
+//         return amountOutMin
 
-    } catch (error) {
-        console.log(error);
+//     } catch (error) {
+//         console.log(error);
 
-    }
-}
+//     }
+// }
 
 const walletNonce = async () => {
     try {
@@ -103,4 +103,4 @@ const wait = async (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export { toHex, tokenBalance, calculateTokensAmount, walletNonce, wait }
+export { toHex, tokenBalance, walletNonce, wait }
