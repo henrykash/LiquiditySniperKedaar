@@ -13,7 +13,7 @@ const provider = new ethers.providers.JsonRpcProvider(process.env.JSON_RPC, 56);
 
 
 const PANCAKE_SWAP = "0x10ed43c718714eb63d5aa57b78b54704e256024e"
-const WBNB_ADDRESS = "0xe9e7cea3dedca5984780bafc599bd69add087d56"
+const WBNB_ADDRESS = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
 const exoticMethods = ["0xe8078d94", "0xc9567bf9", "0x293230b8", "0x8a8c523c", "0x0bd05b69", "0x0f15f4c0", "0x58780a82"]
 function subscribe() {
 	ws.send(
